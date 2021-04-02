@@ -1,26 +1,11 @@
-plugins {
-	id 'org.springframework.boot' version '2.4.4'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id 'java'
+task stage {
+    dependsOn subprojects.collect { ":${it.name}:build" }
 }
 
-group = 'alchemy.works'
-
-sourceCompatibility = '11'
-
-repositories {
-	mavenCentral()
-}
-
-dependencies {
-	// jetbrains annotations
-	implementation 'org.jetbrains:annotations:20.1.0'
-	// spring
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	// test
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
-
-test {
-	useJUnitPlatform()
+// skip tests when stage
+gradle.taskGraph.whenReady { graph ->
+    if (graph.hasTask(stage)) {
+        graph.allTasks.findAll { it instanceof Test }
+                .each { it.enabled = false }
+    }
 }
